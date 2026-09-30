@@ -1,24 +1,25 @@
 # Real-Time URL Shortener + Analytics Dashboard
 
-An event-driven, production-ready MERN stack URL shortener with a Redis cache-aside redirection engine, Socket.io real-time click streaming, and JWT stateless authentication.
+An event-driven, production-ready MERN stack URL shortener featuring a Redis cache-aside redirection engine, Socket.io real-time click streaming, and JWT stateless authentication with httpOnly refresh token cookies.
 
-## 🚀 Live Demo & Deployment Notes
-- **Live Frontend:** `https://<your-frontend-name>.onrender.com`
-- **Live Backend API:** `https://<your-backend-name>.onrender.com`
+## 🚀 Live Demo & Production Notes
+- **Live Frontend Application:** `https://<YOUR_FRONTEND_DOMAIN>.onrender.com`
+- **Live Backend API Service:** `https://<YOUR_BACKEND_DOMAIN>.onrender.com`
 
-> **Note on Free-Tier Hosting:** Render free web services spin down after ~15 minutes of inactivity. The initial HTTP request may take ~50–60 seconds to wake up the cold container.
-> **Note on Performance Metrics:** The 347 to 770+ req/sec throughput figures in this documentation were measured during controlled local load testing using `autocannon` under isolated conditions, not under free-tier cloud resource constraints.
+> ⚠️ **Note on Free-Tier Hosting (Cold Start):** Render free web services spin down after ~15 minutes of inactivity. The initial HTTP request (first load) can take ~1 minute (50–60 seconds) to wake up the cold server container.
+> 
+> 📊 **Note on Performance Numbers:** The 347 to 770+ req/sec throughput figures in this documentation were measured during controlled LOCAL load tests using `autocannon` under isolated hardware conditions, not under free-tier cloud resource limits. Do not run load tests against the deployed free-tier service.
 
 ## 🛠️ Architecture & Core Design Decisions
 
-### 1. Redis Cache-Aside & Pre-Warming Pipeline
+### 1. Redis Cache-Aside & Write-Through Pipeline
 - **Cache-Aside (Lazy Loading):** On redirect (`GET /:shortCode`), Express queries Redis first. On cache hits, it returns an HTTP 302 redirect in sub-milliseconds without querying MongoDB.
 - **Cache Pre-Warming (Write-Through):** Upon URL creation (`POST /api/urls`), the backend immediately populates Redis, ensuring 100% cache hits even for brand-new links.
-- **Graceful Fallback:** If Redis is unreachable, the application degrades gracefully by querying MongoDB directly.
+- **Fault-Tolerant Fallback:** If Redis is unreachable or drops connection, the application degrades gracefully by falling back directly to MongoDB.
 
 ### 2. Asynchronous Non-Blocking Analytics
-- Click logging (`logClickAsync`) is intentionally decoupled from the redirect HTTP response path.
-- The 302 redirect is returned to the user immediately without `await`ing the click database insertion or Socket.io event emission.
+- Click logging (`logClickAsync`) is decoupled from the HTTP redirect response path.
+- The 302 redirect is returned to the user immediately without `await`ing the MongoDB click insertion or Socket.io event emission.
 
 ### 3. Real-Time WebSockets & Room Isolation
 - Socket.io connections are authenticated via JWT handshakes.
@@ -37,21 +38,21 @@ An event-driven, production-ready MERN stack URL shortener with a Redis cache-as
 | **Median Latency (p50)** | 131 ms | **59 ms** | **55% latency reduction** |
 | **Tail Latency (p99)** | 332 ms | **120 ms** | **64% tail latency compression** |
 
-## ⚙️ Environment Variables
+## ⚙️ Production Environment Variables Template
 
-### Backend (`.env`)
+### Backend Service (`.env`)
 ```env
 PORT=5000
 NODE_ENV=production
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/url_shortener
-REDIS_URL=redis://<user>:<password>@host:port
-JWT_SECRET=your_access_token_secret
-JWT_REFRESH_SECRET=your_refresh_token_secret
-CLIENT_URL=https://<your-frontend-name>.onrender.com
-BASE_URL=https://<your-backend-name>.onrender.com
+MONGODB_URI=mongodb+srv://<USER>:<PASSWORD>@<CLUSTER_HOST>/<DB_NAME>?retryWrites=true&w=majority
+REDIS_URL=redis://<USER>:<PASSWORD>@<HOST>:<PORT>
+JWT_SECRET=<YOUR_JWT_SECRET>
+JWT_REFRESH_SECRET=<YOUR_JWT_REFRESH_SECRET>
+CLIENT_URL=https://<YOUR_FRONTEND_DOMAIN>.onrender.com
+BASE_URL=https://<YOUR_BACKEND_DOMAIN>.onrender.com
 ```
 
-### Frontend (`client/.env`)
+### Frontend Static Site (`client/.env`)
 ```env
-VITE_API_URL=https://<your-backend-name>.onrender.com
+VITE_API_URL=https://<YOUR_BACKEND_DOMAIN>.onrender.com
 ```
