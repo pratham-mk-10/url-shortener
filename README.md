@@ -3,8 +3,8 @@
 An event-driven, production-ready MERN stack URL shortener featuring a Redis cache-aside redirection engine, Socket.io real-time click streaming, and JWT stateless authentication with httpOnly refresh token cookies.
 
 ## 🚀 Live Demo & Production Notes
-- **Live Frontend Application:** `https://<YOUR_FRONTEND_DOMAIN>.onrender.com`
-- **Live Backend API Service:** `https://<YOUR_BACKEND_DOMAIN>.onrender.com`
+- **Live Frontend Application:** [https://url-shortener-dashboard-ui.onrender.com](https://url-shortener-dashboard-ui.onrender.com)
+- **Live Backend API Service:** [https://url-shortener-api-qig8.onrender.com](https://url-shortener-api-qig8.onrender.com)
 
 > ⚠️ **Note on Free-Tier Hosting (Cold Start):** Render free web services spin down after ~15 minutes of inactivity. The initial HTTP request (first load) can take ~1 minute (50–60 seconds) to wake up the cold server container.
 > 
@@ -37,22 +37,3 @@ An event-driven, production-ready MERN stack URL shortener featuring a Redis cac
 | **Avg Throughput** | 347 req/sec | **770 req/sec** | **2.2x throughput multiplier** |
 | **Median Latency (p50)** | 131 ms | **59 ms** | **55% latency reduction** |
 | **Tail Latency (p99)** | 332 ms | **120 ms** | **64% tail latency compression** |
-
-## ⚙️ Production Environment Variables Template
-
-### Backend Service (`.env`)
-```env
-PORT=5000
-NODE_ENV=production
-MONGODB_URI=mongodb+srv://<USER>:<PASSWORD>@<CLUSTER_HOST>/<DB_NAME>?retryWrites=true&w=majority
-REDIS_URL=redis://<USER>:<PASSWORD>@<HOST>:<PORT>
-JWT_SECRET=<YOUR_JWT_SECRET>
-JWT_REFRESH_SECRET=<YOUR_JWT_REFRESH_SECRET>
-CLIENT_URL=https://<YOUR_FRONTEND_DOMAIN>.onrender.com
-BASE_URL=https://<YOUR_BACKEND_DOMAIN>.onrender.com
-```
-
-### Frontend Static Site (`client/.env`)
-```env
-VITE_API_URL=https://<YOUR_BACKEND_DOMAIN>.onrender.com
-```
